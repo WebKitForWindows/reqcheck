@@ -34,12 +34,17 @@ type (
 
 var ErrScmDriver = errors.New("scm driver error")
 
+const (
+	DriverGitHub = "github"
+	DriverGitLab = "gitlab"
+)
+
 func NewClientFromDriver(driver, uri, token string) (Client, error) {
-	if driver == "github" {
+	if driver == DriverGitHub {
 		return NewGitHub(uri, token)
 	}
 
-	if driver == "gitlab" {
+	if driver == DriverGitLab {
 		return NewGitLab(uri, token)
 	}
 

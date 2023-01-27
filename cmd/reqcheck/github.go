@@ -4,7 +4,10 @@
 
 package main
 
-import "github.com/urfave/cli/v2"
+import (
+	"github.com/WebKitForWindows/reqcheck"
+	"github.com/urfave/cli/v2"
+)
 
 func githubCmd() *cli.Command {
 	var settings querySettings
@@ -47,6 +50,6 @@ func githubCmd() *cli.Command {
 				Destination: &settings.LimitTo,
 			},
 		},
-		Action: queryAction("github", &settings),
+		Action: queryAction(reqcheck.DriverGitHub, &settings),
 	}
 }
