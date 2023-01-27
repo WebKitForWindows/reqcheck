@@ -36,6 +36,7 @@ func main() {
 		},
 		Commands: []*cli.Command{
 			githubCmd(),
+			gitlabCmd(),
 		},
 		Before: func(c *cli.Context) error {
 			lvl, err := logrus.ParseLevel(logLevel)
