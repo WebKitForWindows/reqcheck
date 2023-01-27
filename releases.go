@@ -14,7 +14,7 @@ import (
 type ListReleaseOptions struct {
 	Owner   string
 	Repo    string
-	UseTags bool
+	Tags    bool
 	LimitTo int
 }
 
@@ -28,7 +28,7 @@ func ListReleases(client Client, opts ListReleaseOptions) rxgo.Observable {
 	listOpts := ListOptions{Page: startingPage, PerPage: perPageDefault}
 
 	var listFunc func(context.Context, string, string, ListOptions) ([]Release, error)
-	if opts.UseTags {
+	if opts.Tags {
 		listFunc = client.ListTags
 	} else {
 		listFunc = client.ListReleases
