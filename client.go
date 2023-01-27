@@ -6,6 +6,8 @@ package reqcheck
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/Masterminds/semver"
 )
@@ -29,3 +31,17 @@ type (
 		ListTags(ctx context.Context, owner, name string, opt ListOptions) ([]Release, error)
 	}
 )
+
+var ErrScmDriver = errors.New("scm driver error")
+
+func NewClientFromDriver(driver, uri, token string) (Client, error) {
+	if driver == "github" {
+		return NewGitHub(uri, token)
+	}
+
+	if driver == "gitlab" {
+		return NewGitLab(uri, token)
+	}
+
+	return nil, fmt.Errorf("unknown scm driver %s: %w", driver, ErrScmDriver)
+}
