@@ -37,6 +37,7 @@ func main() {
 		Commands: []*cli.Command{
 			githubCmd(),
 			gitlabCmd(),
+			vcpkgCmd(),
 		},
 		Before: func(c *cli.Context) error {
 			lvl, err := logrus.ParseLevel(logLevel)
