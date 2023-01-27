@@ -73,7 +73,7 @@ func (c *githubClient) ListReleases(ctx context.Context, owner, name string, opt
 		tagName := release.GetTagName()
 
 		logrus.WithFields(logrus.Fields{
-			"tag":   tagName,
+			"tag":    tagName,
 			"commit": release.GetTargetCommitish(),
 		}).Debug("found release")
 
@@ -100,7 +100,7 @@ func (c *githubClient) ListTags(ctx context.Context, owner, name string, opt Lis
 		tagName := tag.GetName()
 
 		logrus.WithFields(logrus.Fields{
-			"tag":   tagName,
+			"tag":    tagName,
 			"commit": tag.GetCommit().GetSHA(),
 		}).Debug("found tag")
 

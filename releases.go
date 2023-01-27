@@ -12,14 +12,14 @@ import (
 )
 
 type ListReleaseOptions struct {
-	Owner string
-	Repo string
+	Owner   string
+	Repo    string
 	UseTags bool
 	LimitTo int
 }
 
 const (
-	startingPage = 1
+	startingPage   = 1
 	perPageDefault = 30
 	limitToDefault = 100000000
 )
@@ -53,7 +53,7 @@ func ListReleases(client Client, opts ListReleaseOptions) rxgo.Observable {
 
 				for _, item := range items {
 					next <- rxgo.Of(item)
-					
+
 					itemCount++
 					if itemCount >= opts.LimitTo {
 						break

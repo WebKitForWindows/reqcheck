@@ -12,7 +12,7 @@ import (
 
 type (
 	Release struct {
-		Tag string
+		Tag    string
 		SemVer *semver.Version
 	}
 
