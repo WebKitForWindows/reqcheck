@@ -62,6 +62,13 @@ func (c *githubClient) ListReleases(ctx context.Context, owner, name string, opt
 		PerPage: opt.PerPage,
 	}
 
+	logrus.WithFields(logrus.Fields{
+		"owner":    owner,
+		"name":     name,
+		"page":     ghOpts.Page,
+		"per-page": ghOpts.PerPage,
+	}).Debug("listing github releases")
+
 	releases, _, err := c.client.Repositories.ListReleases(ctx, owner, name, ghOpts)
 	if err != nil {
 		return nil, fmt.Errorf("error getting releases from repository %s/%s: %w", owner, name, err)
@@ -88,6 +95,13 @@ func (c *githubClient) ListTags(ctx context.Context, owner, name string, opt Lis
 		Page:    opt.Page,
 		PerPage: opt.PerPage,
 	}
+
+	logrus.WithFields(logrus.Fields{
+		"owner":    owner,
+		"name":     name,
+		"page":     ghOpts.Page,
+		"per-page": ghOpts.PerPage,
+	}).Debug("listing github tags")
 
 	tags, _, err := c.client.Repositories.ListTags(ctx, owner, name, ghOpts)
 	if err != nil {

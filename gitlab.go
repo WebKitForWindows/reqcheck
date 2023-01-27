@@ -59,6 +59,13 @@ func (c *gitlabClient) ListReleases(ctx context.Context, owner, name string, opt
 		},
 	}
 
+	logrus.WithFields(logrus.Fields{
+		"owner":    owner,
+		"name":     name,
+		"page":     glOpts.Page,
+		"per-page": glOpts.PerPage,
+	}).Debug("listing gitlab releases")
+
 	releases, _, err := c.client.Releases.ListReleases(fmt.Sprintf("%s/%s", owner, name), glOpts)
 	if err != nil {
 		return nil, fmt.Errorf("error getting releases from repository %s/%s: %w", owner, name, err)
@@ -87,6 +94,13 @@ func (c *gitlabClient) ListTags(ctx context.Context, owner, name string, opt Lis
 			PerPage: opt.PerPage,
 		},
 	}
+
+	logrus.WithFields(logrus.Fields{
+		"owner":    owner,
+		"name":     name,
+		"page":     glOpts.Page,
+		"per-page": glOpts.PerPage,
+	}).Debug("listing gitlab tags")
 
 	tags, _, err := c.client.Tags.ListTags(fmt.Sprintf("%s/%s", owner, name), glOpts)
 	if err != nil {

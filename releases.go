@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	"github.com/reactivex/rxgo/v2"
+	"github.com/sirupsen/logrus"
 )
 
 type ListReleaseOptions struct {
@@ -56,6 +57,8 @@ func ListReleases(client Client, opts ListReleaseOptions) rxgo.Observable {
 
 					itemCount++
 					if itemCount >= opts.LimitTo {
+						logrus.WithField("limit-to", opts.LimitTo).Debug("reached query limit")
+
 						break
 					}
 				}
