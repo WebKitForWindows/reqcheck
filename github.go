@@ -27,7 +27,7 @@ func NewGitHubClient(uri, token string, cl *http.Client) (Client, error) {
 	// Parse the url
 	githubURL, err := url.Parse(uri)
 	if err != nil {
-		return nil, fmt.Errorf("could not parse GitHub link: %w", err)
+		return nil, fmt.Errorf("could not parse github link: %w", err)
 	}
 
 	// Create the client

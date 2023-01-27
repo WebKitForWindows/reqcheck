@@ -26,7 +26,7 @@ func NewGitLabClient(uri, token string, cl *http.Client) (Client, error) {
 	// Parse the url
 	gitlabURL, err := url.Parse(uri)
 	if err != nil {
-		return nil, fmt.Errorf("could not parse Gitlab link: %w", err)
+		return nil, fmt.Errorf("could not parse gitlab link: %w", err)
 	}
 
 	// Get base url for API
@@ -45,7 +45,7 @@ func NewGitLabClient(uri, token string, cl *http.Client) (Client, error) {
 		gitlab.WithHTTPClient(cl),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("could not connect to GitLab instance %s: %w", uri, err)
+		return nil, fmt.Errorf("could not connect to gitlab instance %s: %w", uri, err)
 	}
 
 	return &gitlabClient{client: client}, nil
