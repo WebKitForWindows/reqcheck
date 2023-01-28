@@ -1,0 +1,8 @@
+# escape=`
+FROM mcr.microsoft.com/powershell:nanoserver-1809
+USER ContainerAdministrator
+
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+ADD release/windows/amd64/reqcheck.exe C:/bin/reqcheck.exe
+ENTRYPOINT [ "C:\\bin\\reqcheck.exe" ]
