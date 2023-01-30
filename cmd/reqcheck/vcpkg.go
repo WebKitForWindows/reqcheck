@@ -16,7 +16,7 @@ import (
 	"github.com/WebKitForWindows/reqcheck"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 func vcpkgCmd() *cli.Command {
@@ -100,24 +100,12 @@ func vcpkgCmd() *cli.Command {
 			upgrade := make([]releaseUpdate, 0)
 
 			for name, library := range cfg.Libraries {
-				file, err := os.ReadFile(filepath.Join(vcpkgPath, "ports", name, "CONTROL"))
-				// file, err := os.ReadFile(filepath.Join(vcpkgPath, "ports", name, "vcpkg.json"))
+				version, err := readVcpkgVersion(vcpkgPath, name)
 				if err != nil {
-					return fmt.Errorf("could not read %s config file: %w", name, err)
+					return fmt.Errorf("could not find version for %s: %w", name, err)
 				}
 
-				// Read the vcpkg config
-				var vcpkgConfig struct {
-					Name    string `yaml:"Name"`
-					Version string `yaml:"Version"`
-				}
-
-				err = yaml.Unmarshal(file, &vcpkgConfig)
-				if err != nil {
-					return fmt.Errorf("could not read %s config file: %w", name, err)
-				}
-
-				logrus.WithField("version", vcpkgConfig.Version).Debug("found config")
+				logrus.WithField("version", version).Debug("found config")
 
 				var constraintFmt string
 				if library.Constraint != "" {
@@ -126,9 +114,9 @@ func vcpkgCmd() *cli.Command {
 					constraintFmt = "^%s"
 				}
 
-				constraint, err := semver.NewConstraint(fmt.Sprintf(constraintFmt, vcpkgConfig.Version))
+				constraint, err := semver.NewConstraint(fmt.Sprintf(constraintFmt, version))
 				if err != nil {
-					return fmt.Errorf("could not create constraint for %s from %s: %w", name, vcpkgConfig.Version, err)
+					return fmt.Errorf("could not create constraint for %s from %s: %w", name, version, err)
 				}
 
 				scm, ok := scms[library.Host]
@@ -157,7 +145,7 @@ func vcpkgCmd() *cli.Command {
 
 				release := releaseUpdate{
 					Name:    name,
-					Current: vcpkgConfig.Version,
+					Current: version,
 					Upgrade: releases[0].(reqcheck.Release).SemVer.String(),
 				}
 
@@ -185,6 +173,29 @@ func vcpkgCmd() *cli.Command {
 			return nil
 		},
 	}
+}
+
+func readVcpkgVersion(vcpkgPath, name string) (string, error) {
+	file, err := os.ReadFile(filepath.Join(vcpkgPath, "ports", name, "vcpkg.json"))
+	if err != nil {
+		return "", fmt.Errorf("could not read %s config file: %w", name, err)
+	}
+
+	un := make(map[interface{}]interface{})
+	err = yaml.Unmarshal(file, &un)
+	if err != nil {
+		return "", fmt.Errorf("could not read %s config file: %w", name, err)
+	}
+
+	if semVer, ok := un["version-semver"].(string); ok {
+		return semVer, nil
+	}
+
+	if ver, ok := un["version"].(string); ok {
+		return ver, nil
+	}
+
+	return "", fmt.Errorf("could not find version string for %s: %w", name, ErrCli)
 }
 
 const defaultTmpl = `The following libraries are up to date:

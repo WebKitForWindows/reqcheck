@@ -10,7 +10,7 @@ require (
 	github.com/urfave/cli/v2 v2.24.1
 	github.com/xanzy/go-gitlab v0.79.0
 	golang.org/x/oauth2 v0.4.0
-	gopkg.in/yaml.v2 v2.2.2
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -34,5 +34,4 @@ require (
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
