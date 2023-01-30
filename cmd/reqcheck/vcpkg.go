@@ -54,9 +54,9 @@ func vcpkgCmd() *cli.Command {
 			logrus.WithField("vcpkg-path", vcpkgPath).Debug("path")
 
 			// Parse and verify config
-			cfg, err := loadConfig(filepath.Join(vcpkgPath, ".reqcheck.yml"))
+			cfg, err := loadConfig(filepath.Join(vcpkgPath, configFileName))
 			if err != nil {
-				return fmt.Errorf("could not open config file %s: %w", "repo.yml", err)
+				return fmt.Errorf("could not open config file %s: %w", configFileName, err)
 			}
 
 			scms := make(map[string]reqcheck.Client)
@@ -174,6 +174,8 @@ func vcpkgCmd() *cli.Command {
 		},
 	}
 }
+
+const configFileName = ".reqcheck.yml"
 
 func readVcpkgVersion(vcpkgPath, name string) (string, error) {
 	file, err := os.ReadFile(filepath.Join(vcpkgPath, "ports", name, "vcpkg.json"))
