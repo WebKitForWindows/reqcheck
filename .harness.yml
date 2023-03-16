@@ -1,0 +1,137 @@
+pipeline:
+  name: reqcheck
+  identifier: reqcheck
+  projectIdentifier: default_project
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: account.Github_OAuth_1674238419058
+        repoName: WebKitForWindows/reqcheck
+        build: <+input>
+  stages:
+    - stage:
+        identifier: testing
+        name: testing
+        spec:
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  identifier: environment
+                  name: environment
+                  spec:
+                    command: |-
+                      go version
+                      go env
+                    image: golang:1.20
+                    imagePullPolicy: Always
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: lint
+                  name: lint
+                  spec:
+                    command: |-
+                      go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+                      golangci-lint version
+                      golangci-lint run
+                    image: golang:1.20
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: test
+                  name: test
+                  spec:
+                    command: go test -cover ./...
+                    image: golang:1.20
+                  timeout: ""
+                  type: Run
+          platform:
+            arch: Amd64
+            os: Linux
+          runtime:
+            spec: {}
+            type: Cloud
+        type: CI
+    - stage:
+        identifier: build1
+        name: build
+        spec:
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  identifier: environment1
+                  name: environment
+                  spec:
+                    command: |-
+                      go version
+                      go env
+                    image: golang:1.20
+                    imagePullPolicy: Always
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: build
+                  name: build
+                  spec:
+                    command: |-
+                      GOOS=linux   GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:7}" -a -tags netgo -o release/linux/amd64/reqcheck ./cmd/reqcheck
+                      GOOS=darwin  GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:7}" -a -tags netgo -o release/darwin/adm64/reqcheck ./cmd/reqcheck
+                      GOOS=windows GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:7}" -a -tags netgo -o release/windows/amd64/reqcheck.exe ./cmd/reqcheck
+                    envVariables:
+                      CGO_ENABLED: "0"
+                    image: golang:1.20
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: buildtag
+                  name: build-tag
+                  spec:
+                    command: |-
+                      GOOS=linux   GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_SEMVER_SHORT}" -a -tags netgo -o release/linux/amd64/reqcheck ./cmd/reqcheck
+                      GOOS=darwin  GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_SEMVER_SHORT}" -a -tags netgo -o release/darwin/amd64/reqcheck ./cmd/reqcheck
+                      GOOS=windows GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_SEMVER_SHORT}" -a -tags netgo -o release/windows/amd64/reqcheck.exe ./cmd/reqcheck
+                    envVariables:
+                      CGO_ENABLED: "0"
+                    image: golang:1.20
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: packagetag
+                  name: package-tag
+                  spec:
+                    command: |-
+                      tar -cvzf release/reqcheck_linux_amd64.tar.gz -C release/linux/amd64 reqcheck
+                      tar -cvzf release/reqcheck_darwin_amd64.tar.gz -C release/darwin/amd64 reqcheck
+                      tar -cvzf release/reqcheck_windows_amd64.tar.gz -C release/windows/amd64 reqcheck.exe
+                    image: golang:1.20
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: executable
+                  name: executable
+                  spec:
+                    command: ./release/linux/amd64/reqcheck --help
+                    image: golang:1.20
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: release
+                  name: release
+                  spec:
+                    image: plugins/github-release
+                    settings:
+                      api_key: <+ secrets.getValue("github_token") >
+                      files: "[release/reqcheck_linux_amd64.tar.gz release/reqcheck_darwin_amd64.tar.gz release/reqcheck_windows_amd64.tar.gz release/windows/amd64/reqcheck.exe]"
+                  timeout: ""
+                  type: Plugin
+          platform:
+            arch: Amd64
+            os: Linux
+          runtime:
+            spec: {}
+            type: Cloud
+        type: CI
