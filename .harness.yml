@@ -67,6 +67,7 @@ pipeline:
                   name: environment
                   spec:
                     command: |-
+                      printenv
                       go version
                       go env
                     image: golang:1.20
