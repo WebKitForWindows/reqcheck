@@ -269,12 +269,14 @@ func (s *sourceControl) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		switch t := val.(type) {
 		case string:
 			s.Token = t
-		case map[interface{}]interface{}:
-			envVar, ok := t["from_environment"]
+		case map[string]interface{}:
+			envVar, ok := t["from_environment"].(string)
 			if ok {
-				env, ok := os.LookupEnv(envVar.(string))
+				env, ok := os.LookupEnv(envVar)
 				if ok {
 					s.Token = env
+				} else {
+					return fmt.Errorf("could not find token in %s, %w", envVar, ErrCli)
 				}
 			}
 		}
