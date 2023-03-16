@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -155,6 +156,14 @@ func vcpkgCmd() *cli.Command {
 					upgrade = append(upgrade, release)
 				}
 			}
+
+			// Sort the results
+			sort.Slice(current, func(i, j int) bool {
+				return current[i].Name < current[j].Name
+			})
+			sort.Slice(upgrade, func(i, j int) bool {
+				return upgrade[i].Name < upgrade[j].Name
+			})
 
 			// Output results to template
 			td := struct {
