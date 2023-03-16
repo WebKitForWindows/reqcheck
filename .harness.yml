@@ -74,19 +74,7 @@ pipeline:
                     imagePullPolicy: Always
                   timeout: ""
                   type: Run
-              - step:
-                  identifier: build
-                  name: build
-                  spec:
-                    command: |-
-                      GOOS=linux   GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:7}" -a -tags netgo -o release/linux/amd64/reqcheck ./cmd/reqcheck
-                      GOOS=darwin  GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:7}" -a -tags netgo -o release/darwin/adm64/reqcheck ./cmd/reqcheck
-                      GOOS=windows GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:7}" -a -tags netgo -o release/windows/amd64/reqcheck.exe ./cmd/reqcheck
-                    envVariables:
-                      CGO_ENABLED: "0"
-                    image: golang:1.20
-                  timeout: ""
-                  type: Run
+
               - step:
                   identifier: buildtag
                   name: build-tag
