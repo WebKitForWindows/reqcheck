@@ -112,13 +112,15 @@ func vcpkgCmd() *cli.Command {
 				if library.Constraint != "" {
 					constraintFmt = library.Constraint
 				} else {
-					constraintFmt = "^%s"
+					constraintFmt = ">= %s"
 				}
 
-				constraint, err := semver.NewConstraint(fmt.Sprintf(constraintFmt, version))
+				constraintStr := fmt.Sprintf(constraintFmt, version)
+				constraint, err := semver.NewConstraint(constraintStr)
 				if err != nil {
 					return fmt.Errorf("could not create constraint for %s from %s: %w", name, version, err)
 				}
+				logrus.WithField("constraint", constraintStr).Debug("found constraint")
 
 				scm, ok := scms[library.Host]
 				if !ok {
