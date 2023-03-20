@@ -7,6 +7,7 @@ package reqcheck
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/Masterminds/semver"
 	"github.com/sirupsen/logrus"
@@ -15,6 +16,10 @@ import (
 var versionMatcher = regexp.MustCompile(`^[a-zA-Z-_.]*(?P<major>\d+)[._-](?P<minor>\d*)[._-]*(?P<patch>\d*)[._-]*(?P<prerelease>[a-zA-Z-_.]*)(?P<preversion>\d*)$`)
 
 func generateVersion(tag string, matcher *regexp.Regexp) *semver.Version {
+	if strings.HasPrefix(tag, "CVE-") {
+		return nil
+	}
+
 	semVer, err := semver.NewVersion(tag)
 	if err == nil {
 		return semVer
