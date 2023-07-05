@@ -1,0 +1,114 @@
+---
+kind: pipeline
+type: docker
+name: testing
+
+steps:
+- name: environment
+  image: golang:1.20
+  pull: always
+  commands:
+  - go version
+  - go env
+
+- name: lint
+  image: golang:1.20
+  commands:
+  - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+  - golangci-lint version
+  - golangci-lint run
+  volumes:
+  - name: gopath
+    path: /go
+
+- name: test
+  image: golang:1.20
+  commands:
+  - go test -cover ./...
+  volumes:
+  - name: gopath
+    path: /go
+
+volumes:
+- name: gopath
+  temp: {}
+
+trigger:
+  ref:
+  - refs/heads/master
+  - refs/tags/**
+  - refs/pull/**
+  
+---
+kind: pipeline
+type: docker
+name: build
+
+steps:
+- name: environment
+  image: golang:1.20
+  pull: always
+  commands:
+  - go version
+  - go env
+
+- name: build
+  image: golang:1.20
+  commands:
+  - GOOS=linux   GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:7}" -a -tags netgo -o release/linux/amd64/reqcheck ./cmd/reqcheck
+  - GOOS=darwin  GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:7}" -a -tags netgo -o release/darwin/adm64/reqcheck ./cmd/reqcheck
+  - GOOS=windows GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:7}" -a -tags netgo -o release/windows/amd64/reqcheck.exe ./cmd/reqcheck
+  environment:
+    CGO_ENABLED: 0
+  when:
+    event:
+      exclude:
+      - tag
+
+- name: build-tag
+  image: golang:1.20
+  commands:
+  - GOOS=linux   GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_SEMVER_SHORT}" -a -tags netgo -o release/linux/amd64/reqcheck ./cmd/reqcheck
+  - GOOS=darwin  GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_SEMVER_SHORT}" -a -tags netgo -o release/darwin/amd64/reqcheck ./cmd/reqcheck
+  - GOOS=windows GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_SEMVER_SHORT}" -a -tags netgo -o release/windows/amd64/reqcheck.exe ./cmd/reqcheck
+  environment:
+    CGO_ENABLED: 0
+  when:
+    event:
+    - tag
+
+- name: package-tag
+  image: golang:1.20
+  commands:
+  - tar -cvzf release/reqcheck_linux_amd64.tar.gz -C release/linux/amd64 reqcheck
+  - tar -cvzf release/reqcheck_darwin_amd64.tar.gz -C release/darwin/amd64 reqcheck
+  - tar -cvzf release/reqcheck_windows_amd64.tar.gz -C release/windows/amd64 reqcheck.exe
+  when:
+    event:
+    - tag
+
+- name: executable
+  image: golang:1.20
+  commands:
+  - ./release/linux/amd64/reqcheck --help
+
+- name: release
+  image: plugins/github-release
+  settings:
+    api_key:
+      from_secret: github_token
+    files:
+    - release/reqcheck_linux_amd64.tar.gz
+    - release/reqcheck_darwin_amd64.tar.gz
+    - release/reqcheck_windows_amd64.tar.gz
+    # Backwards compatibility
+    - release/windows/amd64/reqcheck.exe
+  when:
+    event:
+    - tag
+
+trigger:
+  ref:
+  - refs/heads/master
+  - refs/tags/**
+  - refs/pull/**
