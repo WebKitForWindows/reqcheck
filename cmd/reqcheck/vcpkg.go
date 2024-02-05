@@ -136,6 +136,7 @@ func vcpkgCmd() *cli.Command {
 
 				releases, err := reqcheck.
 					ListReleases(scm, releaseOpts).
+					Filter(reqcheck.FilterRepeatVersions()).
 					Filter(reqcheck.FilterSemanticConstraint(constraint)).
 					ToSlice(1)
 				if err != nil {

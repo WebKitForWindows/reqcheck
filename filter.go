@@ -4,7 +4,11 @@
 
 package reqcheck
 
-import "github.com/Masterminds/semver"
+import (
+	"slices"
+
+	"github.com/Masterminds/semver"
+)
 
 func FilterSemanticVersion(item interface{}) bool {
 	release := item.(Release)
@@ -19,6 +23,25 @@ func FilterStableRelease(item interface{}) bool {
 	}
 
 	return release.SemVer.Prerelease() == ""
+}
+
+func FilterRepeatVersions() func(interface{}) bool {
+	seen := make([]string, 0)
+	return func(item interface{}) bool {
+		release := item.(Release)
+		if release.SemVer == nil {
+			return true
+		}
+
+		versionString := release.SemVer.String()
+
+		if slices.Contains(seen, versionString) {
+			return false
+		}
+
+		seen = append(seen, versionString)
+		return true
+	}
 }
 
 func FilterSemanticConstraint(c *semver.Constraints) func(interface{}) bool {
