@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/google/go-github/v58/github"
+	"github.com/google/go-github/v60/github"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
