@@ -15,6 +15,7 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/WebKitForWindows/reqcheck"
+	"github.com/reactivex/rxgo/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v3"
@@ -134,26 +135,21 @@ func vcpkgCmd() *cli.Command {
 					LimitTo: library.LimitTo,
 				}
 
-				releases, err := reqcheck.
-					ListReleases(scm, releaseOpts).
-					Filter(reqcheck.FilterRepeatVersions()).
+				latestRelease, err := reqcheck.ListReleases(scm, releaseOpts).
 					Filter(reqcheck.FilterSemanticConstraint(constraint)).
-					ToSlice(1)
-				if err != nil {
+					Reduce(reqcheck.ReduceGreatestVersion).
+					Get()
+				if err != nil || latestRelease == rxgo.OptionalSingleEmpty {
 					return fmt.Errorf("could not get releases %w", err)
-				}
-
-				if len(releases) == 0 {
-					return fmt.Errorf("could not find any releases for %s: %w", name, ErrCli)
 				}
 
 				release := releaseUpdate{
 					Name:    name,
 					Current: version,
-					Upgrade: releases[0].(reqcheck.Release).SemVer.String(),
+					Upgrade: latestRelease.V.(reqcheck.Release).SemVer.String(),
 				}
 
-				if len(releases) == 1 {
+				if release.Current == release.Upgrade {
 					current = append(current, release)
 				} else {
 					upgrade = append(upgrade, release)
