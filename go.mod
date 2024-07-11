@@ -28,7 +28,7 @@ require (
 	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/teivah/onecontext v0.0.0-20200513185103-40f981bfd775 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
-	golang.org/x/net v0.22.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
