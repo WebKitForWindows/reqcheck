@@ -1,5 +1,7 @@
 # reqcheck
-Determine when a WebKit requirement has a new release
+> Determine when a WebKit requirement has a new release
+
+![example workflow](https://github.com/WebKitForWindows/reqcheck/actions/workflows/build.yml/badge.svg)
 
 ## Build
 
