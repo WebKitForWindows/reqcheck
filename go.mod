@@ -1,6 +1,7 @@
 module github.com/WebKitForWindows/reqcheck
 
 go 1.22
+toolchain go1.23.6
 
 require (
 	github.com/Masterminds/semver v1.5.0
@@ -9,7 +10,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/urfave/cli/v2 v2.27.5
 	github.com/xanzy/go-gitlab v0.115.0
-	golang.org/x/oauth2 v0.26.0
+	golang.org/x/oauth2 v0.27.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
