@@ -8,7 +8,7 @@ require (
 	github.com/google/go-github/v63 v63.0.0
 	github.com/reactivex/rxgo/v2 v2.5.0
 	github.com/sirupsen/logrus v1.9.3
-	github.com/urfave/cli/v2 v2.27.5
+	github.com/urfave/cli/v2 v2.27.6
 	github.com/xanzy/go-gitlab v0.115.0
 	golang.org/x/oauth2 v0.27.0
 	gopkg.in/yaml.v3 v3.0.1
