@@ -18,7 +18,7 @@ jobs:
     - name: Linter
       uses: reviewdog/action-golangci-lint@v2
       with:
-        golangci_lint_flags: "--enable-all --exclude-use-default=false"
+        golangci_lint_flags: "--default all"
 
   commit:
     runs-on: ubuntu-latest
