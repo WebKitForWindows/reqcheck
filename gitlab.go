@@ -11,7 +11,7 @@ import (
 	"net/url"
 
 	"github.com/sirupsen/logrus"
-	"github.com/xanzy/go-gitlab"
+	"gitlab.com/gitlab-org/api/client-go"
 )
 
 type gitlabClient struct {
