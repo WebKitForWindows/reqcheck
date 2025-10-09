@@ -24,7 +24,8 @@ import (
 
 func vcpkgCmd() *cli.Command {
 	settings := struct {
-		Output string
+		Output   string
+		Overlays []string
 	}{}
 
 	return &cli.Command{
@@ -37,20 +38,35 @@ func vcpkgCmd() *cli.Command {
 				Usage:       "output results to file",
 				Destination: &settings.Output,
 			},
+			&cli.StringSliceFlag{
+				Name:        "overlay",
+				Usage:       "overlay repositories",
+				Destination: &settings.Overlays,
+			},
 		},
 		Action: func(c context.Context, cmd *cli.Command) error {
 			if cmd.NArg() > 1 {
 				return fmt.Errorf("command takes one optional argument <vcpkg-path>: %w", ErrCli)
 			}
 
+			// Determine working directory
+			workingDir, err := os.Getwd()
+			logrus.WithField("working-directory", workingDir).Debug("root")
+			if err != nil {
+				return fmt.Errorf("could not determine working directory: %w", ErrCli)
+			}
+
+			// Determine overlay directories
+			for i, overlay := range settings.Overlays {
+				if !filepath.IsAbs(overlay) {
+					settings.Overlays[i] = filepath.Join(workingDir, overlay)
+				}
+				logrus.WithField(fmt.Sprintf("overlay[%d]", i), settings.Overlays[i]).Debug("path")
+			}
+
 			// Determine vcpkg directory
 			vcpkgPath := cmd.Args().Get(0)
 			if !filepath.IsAbs(vcpkgPath) {
-				workingDir, err := os.Getwd()
-				logrus.WithField("working-directory", workingDir).Debug("root")
-				if err != nil {
-					return fmt.Errorf("could not determine working directory: %w", ErrCli)
-				}
 				vcpkgPath = filepath.Join(workingDir, vcpkgPath)
 			}
 
@@ -103,7 +119,7 @@ func vcpkgCmd() *cli.Command {
 			upgrade := make([]releaseUpdate, 0)
 
 			for name, library := range cfg.Libraries {
-				semVersion, err := readVcpkgVersion(vcpkgPath, name)
+				semVersion, err := readVcpkgVersion(settings.Overlays, vcpkgPath, name)
 				if err != nil {
 					return fmt.Errorf("could not find version for %s: %w", name, err)
 				}
@@ -187,10 +203,20 @@ func vcpkgCmd() *cli.Command {
 
 const configFileName = ".reqcheck.yml"
 
-func readVcpkgVersion(vcpkgPath, name string) (*semver.Version, error) {
-	file, err := os.ReadFile(filepath.Join(vcpkgPath, "ports", name, "vcpkg.json"))
-	if err != nil {
-		return nil, fmt.Errorf("could not read %s config file: %w", name, err)
+func readVcpkgVersion(overlayPaths []string, vcpkgPath, name string) (*semver.Version, error) {
+	var file []byte
+	var err error
+	overlayPaths = append(overlayPaths, vcpkgPath)
+
+	for _, path := range overlayPaths {
+		file, err = os.ReadFile(filepath.Join(path, "ports", name, "vcpkg.json"))
+		if err == nil {
+			break
+		}
+	}
+
+	if file == nil {
+		return nil, fmt.Errorf("could not find config file for %s: %w", name, os.ErrNotExist)
 	}
 
 	un := make(map[interface{}]interface{})
