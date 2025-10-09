@@ -103,10 +103,11 @@ func vcpkgCmd() *cli.Command {
 			upgrade := make([]releaseUpdate, 0)
 
 			for name, library := range cfg.Libraries {
-				version, err := readVcpkgVersion(vcpkgPath, name)
+				semVersion, err := readVcpkgVersion(vcpkgPath, name)
 				if err != nil {
 					return fmt.Errorf("could not find version for %s: %w", name, err)
 				}
+				version := semVersion.String()
 
 				logrus.WithField("version", version).Debug("found config")
 
@@ -186,27 +187,27 @@ func vcpkgCmd() *cli.Command {
 
 const configFileName = ".reqcheck.yml"
 
-func readVcpkgVersion(vcpkgPath, name string) (string, error) {
+func readVcpkgVersion(vcpkgPath, name string) (*semver.Version, error) {
 	file, err := os.ReadFile(filepath.Join(vcpkgPath, "ports", name, "vcpkg.json"))
 	if err != nil {
-		return "", fmt.Errorf("could not read %s config file: %w", name, err)
+		return nil, fmt.Errorf("could not read %s config file: %w", name, err)
 	}
 
 	un := make(map[interface{}]interface{})
 	err = yaml.Unmarshal(file, &un)
 	if err != nil {
-		return "", fmt.Errorf("could not read %s config file: %w", name, err)
+		return nil, fmt.Errorf("could not read %s config file: %w", name, err)
 	}
 
 	if semVer, ok := un["version-semver"].(string); ok {
-		return semVer, nil
+		return semver.NewVersion(semVer)
 	}
 
 	if ver, ok := un["version"].(string); ok {
-		return ver, nil
+		return semver.NewVersion(ver)
 	}
 
-	return "", fmt.Errorf("could not find version string for %s: %w", name, ErrCli)
+	return nil, fmt.Errorf("could not find version string for %s: %w", name, ErrCli)
 }
 
 const defaultTmpl = `The following libraries are up to date:
