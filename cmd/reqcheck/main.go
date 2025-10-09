@@ -5,12 +5,13 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
 
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 var (
@@ -21,11 +22,11 @@ var (
 func main() {
 	var logLevel string
 
-	app := &cli.App{
-		Name:                 "reqcheck",
-		Usage:                "query releases",
-		Version:              version,
-		EnableBashCompletion: true,
+	app := &cli.Command{
+		Name:                  "reqcheck",
+		Usage:                 "query releases",
+		Version:               version,
+		EnableShellCompletion: true,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:        "log-level",
@@ -39,19 +40,19 @@ func main() {
 			gitlabCmd(),
 			vcpkgCmd(),
 		},
-		Before: func(c *cli.Context) error {
+		Before: func(c context.Context, cmd *cli.Command) (context.Context, error) {
 			lvl, err := logrus.ParseLevel(logLevel)
 			if err != nil {
-				return fmt.Errorf("invalid logging level %s: %w", logLevel, err)
+				return c, fmt.Errorf("invalid logging level %s: %w", logLevel, err)
 			}
 
 			logrus.SetLevel(lvl)
 
-			return nil
+			return c, nil
 		},
 	}
 
-	if err := app.Run(os.Args); err != nil {
+	if err := app.Run(context.Background(), os.Args); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}

@@ -6,7 +6,7 @@ package main
 
 import (
 	"github.com/WebKitForWindows/reqcheck"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 func gitlabCmd() *cli.Command {
@@ -26,7 +26,7 @@ func gitlabCmd() *cli.Command {
 			&cli.StringFlag{
 				Name:        "token",
 				Usage:       "access token for gitlab api",
-				EnvVars:     []string{"GITLAB_TOKEN"},
+				Sources:     cli.EnvVars("GITLAB_TOKEN"),
 				Destination: &settings.Token,
 			},
 			&cli.BoolFlag{

@@ -5,11 +5,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/Masterminds/semver"
 	"github.com/WebKitForWindows/reqcheck"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 type querySettings struct {
@@ -21,18 +22,18 @@ type querySettings struct {
 	LimitTo    int
 }
 
-func queryAction(driver string, settings *querySettings) func(c *cli.Context) error {
-	return func(c *cli.Context) error {
+func queryAction(driver string, settings *querySettings) func(c context.Context, cmd *cli.Command) error {
+	return func(c context.Context, cmd *cli.Command) error {
 		if settings.Token == "" {
 			return fmt.Errorf("no token provided: %w", ErrCli)
 		}
 
-		if c.NArg() != 2 {
+		if cmd.NArg() != 2 {
 			return fmt.Errorf("command takes two arguments <owner> <repo>: %w", ErrCli)
 		}
 
-		owner := c.Args().Get(0)
-		repo := c.Args().Get(1)
+		owner := cmd.Args().Get(0)
+		repo := cmd.Args().Get(1)
 
 		client, err := reqcheck.NewClientFromDriver(driver, settings.URI, settings.Token)
 		if err != nil {

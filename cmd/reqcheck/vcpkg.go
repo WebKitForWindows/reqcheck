@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -17,7 +18,7 @@ import (
 	"github.com/WebKitForWindows/reqcheck"
 	"github.com/reactivex/rxgo/v2"
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 	"gopkg.in/yaml.v3"
 )
 
@@ -37,13 +38,13 @@ func vcpkgCmd() *cli.Command {
 				Destination: &settings.Output,
 			},
 		},
-		Action: func(c *cli.Context) error {
-			if c.NArg() > 1 {
+		Action: func(c context.Context, cmd *cli.Command) error {
+			if cmd.NArg() > 1 {
 				return fmt.Errorf("command takes one optional argument <vcpkg-path>: %w", ErrCli)
 			}
 
 			// Determine vcpkg directory
-			vcpkgPath := c.Args().Get(0)
+			vcpkgPath := cmd.Args().Get(0)
 			if !filepath.IsAbs(vcpkgPath) {
 				workingDir, err := os.Getwd()
 				logrus.WithField("working-directory", workingDir).Debug("root")
