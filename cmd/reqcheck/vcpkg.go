@@ -5,7 +5,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -26,6 +28,7 @@ func vcpkgCmd() *cli.Command {
 	settings := struct {
 		Output   string
 		Overlays []string
+		Slack    bool
 	}{}
 
 	return &cli.Command{
@@ -42,6 +45,11 @@ func vcpkgCmd() *cli.Command {
 				Name:        "overlay",
 				Usage:       "overlay repositories",
 				Destination: &settings.Overlays,
+			},
+			&cli.BoolFlag{
+				Name:        "slack",
+				Usage:       "output a slack message",
+				Destination: &settings.Slack,
 			},
 		},
 		Action: func(c context.Context, cmd *cli.Command) error {
@@ -191,9 +199,41 @@ func vcpkgCmd() *cli.Command {
 				Upgrade: upgrade,
 			}
 
-			err = t.Execute(output, td)
+			buffer := bytes.NewBuffer([]byte{})
+			var writeTemplateTo io.Writer
+			if settings.Slack {
+				writeTemplateTo = buffer
+			} else {
+				writeTemplateTo = output
+			}
+
+			err = t.Execute(writeTemplateTo, td)
 			if err != nil {
 				return fmt.Errorf("could not write results: %w", err)
+			}
+
+			if settings.Slack {
+				payload := map[string]interface{}{
+					"channel": "${{ env.SLACK_CHANNEL_ID }}",
+					"text":    "Requirements check",
+					"blocks": []map[string]interface{}{{
+						"type": "section",
+						"text": map[string]interface{}{
+							"type": "mrkdwn",
+							"text": buffer.String(),
+						},
+					}},
+				}
+
+				encoded, err := json.Marshal(payload)
+				if err != nil {
+					return fmt.Errorf("could not create slack payload: %w", err)
+				}
+
+				_, err = output.Write(encoded)
+				if err != nil {
+					return fmt.Errorf("could not write results: %w", err)
+				}
 			}
 
 			return nil
