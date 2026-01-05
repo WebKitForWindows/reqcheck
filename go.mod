@@ -8,7 +8,7 @@ require (
 	github.com/reactivex/rxgo/v2 v2.5.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/urfave/cli/v3 v3.6.1
-	gitlab.com/gitlab-org/api/client-go v1.10.0
+	gitlab.com/gitlab-org/api/client-go v1.11.0
 	golang.org/x/oauth2 v0.34.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -17,7 +17,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.8 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -25,7 +25,7 @@ require (
 	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/teivah/onecontext v0.0.0-20200513185103-40f981bfd775 // indirect
 	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.36.0 // indirect
 )
