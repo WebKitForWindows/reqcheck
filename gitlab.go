@@ -54,8 +54,8 @@ func NewGitLabClient(uri, token string, cl *http.Client) (Client, error) {
 func (c *gitlabClient) ListReleases(ctx context.Context, owner, name string, opt ListOptions) ([]Release, error) {
 	glOpts := &gitlab.ListReleasesOptions{
 		ListOptions: gitlab.ListOptions{
-			Page:    opt.Page,
-			PerPage: opt.PerPage,
+			Page:    int64(opt.Page),
+			PerPage: int64(opt.PerPage),
 		},
 	}
 
@@ -90,8 +90,8 @@ func (c *gitlabClient) ListReleases(ctx context.Context, owner, name string, opt
 func (c *gitlabClient) ListTags(ctx context.Context, owner, name string, opt ListOptions) ([]Release, error) {
 	glOpts := &gitlab.ListTagsOptions{
 		ListOptions: gitlab.ListOptions{
-			Page:    opt.Page,
-			PerPage: opt.PerPage,
+			Page:    int64(opt.Page),
+			PerPage: int64(opt.PerPage),
 		},
 	}
 
