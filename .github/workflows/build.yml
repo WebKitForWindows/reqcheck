@@ -81,7 +81,7 @@ jobs:
         tar -cvzf ./release/reqcheck_windows_amd64.tar.gz -C ./release/windows/amd64 reqcheck.exe
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         files: |
           release/reqcheck_linux_amd64.tar.gz
