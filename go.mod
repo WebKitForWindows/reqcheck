@@ -4,12 +4,11 @@ go 1.26.0
 
 require (
 	github.com/Masterminds/semver v1.5.0
-	github.com/google/go-github/v75 v75.0.0
+	github.com/google/go-github/v93 v93.0.0
 	github.com/reactivex/rxgo/v2 v2.5.0
 	github.com/sirupsen/logrus v1.10.2
 	github.com/urfave/cli/v3 v3.14.0
 	gitlab.com/gitlab-org/api/client-go v1.46.0
-	golang.org/x/oauth2 v0.37.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -23,8 +22,7 @@ require (
 	github.com/stretchr/testify v1.12.1 // indirect
 	github.com/teivah/onecontext v0.0.0-20200513185103-40f981bfd775 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/sync v0.16.0 // indirect
+	golang.org/x/oauth2 v0.34.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
 )

@@ -10,9 +10,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/google/go-github/v75/github"
+	"github.com/google/go-github/v93/github"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/oauth2"
 )
 
 type githubClient struct {
@@ -30,27 +29,32 @@ func NewGitHubClient(uri, token string, cl *http.Client) (Client, error) {
 		return nil, fmt.Errorf("could not parse github link: %w", err)
 	}
 
-	// Create the client
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
-	tc := oauth2.NewClient(
-		context.WithValue(context.Background(), oauth2.HTTPClient, cl),
-		ts,
-	)
-
-	client := github.NewClient(tc)
+	opts := []github.ClientOptionsFunc{
+		github.WithAuthToken(token),
+	}
 
 	if githubURL.Hostname() != "github.com" {
 		relBaseURL, _ := url.Parse("./api/v3/")
 		relUploadURL, _ := url.Parse("./api/uploads/")
 
-		client.BaseURL = githubURL.ResolveReference(relBaseURL)
-		client.UploadURL = githubURL.ResolveReference(relUploadURL)
+		opts = append(
+			opts,
+			github.WithEnterpriseURLs(
+				githubURL.ResolveReference(relBaseURL).String(),
+				githubURL.ResolveReference(relUploadURL).String(),
+			),
+		)
+	}
+
+	client, err := github.NewClient(opts...)
+	if err != nil {
+		return nil, fmt.Errorf("could not create github client: %w", err)
 	}
 
 	logrus.WithFields(logrus.Fields{
 		"github-url": githubURL.String(),
-		"base-url":   client.BaseURL.String(),
-		"upload-url": client.BaseURL.String(),
+		"base-url":   client.BaseURL(),
+		"upload-url": client.UploadURL(),
 	}).Debug("connecting to github instance")
 
 	return &githubClient{client: client}, nil
